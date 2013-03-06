@@ -1,0 +1,7 @@
+;$Id$
+name = White paper
+description = This module is for white papers.
+package = Custom Module
+core = 6.x
+version = "6.x-2.1"
+project = "custom_form"

@@ -1,0 +1,72 @@
+<?php
+// $Id$
+/**
+*@file
+* This file is created to show custom form creation in drupal.
+*/
+
+
+/**
+* Implementation of hook_menu()
+*/
+
+
+
+function custom_form_menu()
+{
+	$items = array();
+	$items['custom-form'] = array( 'title' => t('Demo of custom from'),
+		                           'page callback' => 'my_custom_form',
+									'access arguments' => array('access content'),
+								   'type' =>MENU_CALLBACK,
+									
+		                          );
+	
+	return $items;
+}
+
+function my_custom_form()
+{
+	return drupal_get_form('mera_from');
+}
+
+
+function mera_from()
+{
+	global $user;
+	drupal_add_css(drupal_get_path('module', 'custom_form') .'/custom_form.css');
+	drupal_add_js(drupal_get_path('module', 'custom_form') .'/custom_form.js');
+	
+	$form['textfield-first-name'] = array(
+										  '#title' => t('First Name'),
+										  '#required' => TRUE,
+										  '#size' => 30,
+										  '#maxlength'=>20,
+										  '#default_value' => 'Ankit',
+										  '#type'=> 'textfield',
+										  '#attributes' => array('class' => 'class-one class-two',  'Onblur' => 'check_value(this.value)'),
+										  '#id' => 'custom-id',
+										  '#weight' => 1,
+										  '#description' => t('please enter your first name')
+										 );
+	
+	$form['textfield-second-name'] = array(
+		                                    '#title'=> t('Second name'),
+		                                    '#description' => t('Please enter your second name'),
+		                                    '#default_value'=> 'kumar',
+		                                    '#size' => 40,
+		                                    '#maxlength' => 10,
+		                                    '#type' =>'textfield',
+		                                    '#attributes' => array('class'=> 'class-three'),
+		                                     '#weight' => 2,
+											);
+	
+	$form['submit'] = array(
+		                     '#type' => 'submit',
+		                     '#value' => 'Submit',
+		                      '#weight' => 5,
+		                    );
+	return $form;
+
+}
+

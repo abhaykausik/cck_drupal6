@@ -1,0 +1,84 @@
+<?php
+function helper_menu() {
+	$items['products-list'] = array(
+	'title' => t('Products List'),
+	'title callback' => 'dyn_product_title',
+	'page callback' => 'products_list',    
+    'access arguments' => array('access content'),	
+	'type' => MENU_CALLBACK,
+	);
+	$items['category-list'] = array(
+	'title' => t('Product Categories'),
+	'title callback' => 'dyn_title',
+	'page callback' => 'category_list',    
+    'access arguments' => array('access content'),	
+	'type' => MENU_CALLBACK,
+	);
+
+	return $items;
+}
+function products_list()
+{	
+	return theme('products_list');
+}
+function category_list()
+{	
+	return theme('category_list');
+}
+function helper_theme() {
+    return array(
+    'products_list' => array(
+								'template' => 'products_list',
+								'arguments' => array(),
+							),
+	'category_list' => array(
+								'template' => 'category_list',
+								'arguments' => array(),
+							)
+    );
+}
+
+/**
+* Title callback function
+*/
+
+function dyn_title()
+{
+ if(arg(0)=='category-list' && arg(1)!=''){
+  $argu = arg(1);
+   $res = db_query('SELECT name FROM {term_data} WHERE vid=1 AND tid=%d', $argu);
+  $res = db_result($res);
+  $page_custom_title = $res.' Categories';
+  drupal_set_title(t($page_custom_title));
+ }
+  if(arg(0)=='category-list' && arg(1)=='')
+	{
+	 $page_custom_title = 'Product Categories';
+	 drupal_set_title(t($page_custom_title));
+	}
+  
+  
+  
+ 
+}
+
+function dyn_product_title()
+{
+ if(arg(0)=='products-list' && arg(1)!=''){
+  $argu = arg(1);
+   $res = db_query('SELECT name FROM {term_data} WHERE vid=1 AND tid=%d', $argu);
+  $res = db_result($res);
+  $page_custom_title = $res.' Products';
+  drupal_set_title(t($page_custom_title));
+ }
+  if(arg(0)=='products-list' && arg(1)=='')
+	{
+	 $page_custom_title = 'Products';
+	 drupal_set_title(t($page_custom_title));
+	}
+  
+  
+  
+ 
+}
+

@@ -1,0 +1,7 @@
+;$Id$
+name = Custom Advance Search Node Type module.
+description = This module is created to search data by node type.
+package = Custom Module
+core = 6.x
+version = "6.x-1.1"
+project = "ankit custom module"

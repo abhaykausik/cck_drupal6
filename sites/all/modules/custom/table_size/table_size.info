@@ -1,0 +1,7 @@
+;$Id$
+name = Table Size
+description = This module is created to show different table Size.
+package = Custom Module
+core = 6.x
+version = "6.x-1.1"
+project = "ankit custom module"

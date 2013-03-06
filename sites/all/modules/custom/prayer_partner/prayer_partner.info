@@ -1,0 +1,7 @@
+;$Id$
+name = Prayer Partner
+description = This module is developed to implement prayer partner functionality.
+package = Custom Module
+core = 6.x
+version = "6.x-1.1"
+project = "ankit custom module"

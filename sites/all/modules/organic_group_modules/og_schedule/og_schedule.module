@@ -1,0 +1,51 @@
+<?php
+
+include_once 'og_schedule.data.inc';
+include_once 'og_schedule.api.inc';
+include_once 'og_schedule.widget.inc';
+
+/**
+ * An access function implementation.
+ *
+ * @param int $nid
+ * @return bool
+ */
+function og_schedule_node_access($nid) {
+  $node = node_load($nid);
+  return $node !== FALSE && node_access('view', $node) && isset($node->type) && og_is_group_type($node->type);
+}
+
+/**
+ * Implementation of hook_menu().
+ *
+ * @return array
+ */
+function og_schedule_menu() {
+  $menu = array();
+
+  $menu['admin/og/schedule'] = array(
+    'page callback' => 'og_schedule_admin_page',
+    'title' => 'Schedule configuration',
+    'access arguments' => array('administer site configuration'),
+    'description' => t('Administer organic groups schedule'),
+    'file' => 'og_schedule.admin.inc',
+    'type' => MENU_CALLBACK | MENU_NORMAL_ITEM,
+  );
+
+  $menu['admin/og/schedule/general'] = array(
+    'title' => 'General',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
+
+  $menu['node/%/schedule'] = array(
+    'page callback' => 'og_schedule_show_schedule',
+    'page arguments' => array(1),
+    'title' => 'Schedule',
+    'access callback' => 'og_schedule_node_access',
+    'access arguments' => array(1),
+    'file' => 'og_schedule.widget.inc',
+    'type' => MENU_CALLBACK | MENU_LOCAL_TASK,
+  );
+
+  return $menu;
+}

@@ -1,0 +1,35 @@
+subid -> auto increment
+Kind -> always 1
+item_name -> title of subscription
+description -> description 
+t1 -> D
+t2-> D
+a3-> amount
+p3 -> number of month of day for billing cycle
+t3 -> (D/M) represents days or month for billing cylce.
+src -> 1 for reoccring and `null` for non-reoccuring
+
+srt -> Recurring times how many times it reoccur it's a integer
+
+currency_code -> USD
+
+status -> 1
+uid_admin -> 1
+send_admin_onsub ->1
+send_admin_onend -> 1
+send_user_onsub -> 1
+
+send_user_onsub_subject -> (Welcome to %Subscription%Node)
+send_user_onsub_body ->(Hello %Username and welcome to your new subscription %Subscription%Node on %Site)
+
+nearend_days -> 5(how many days before reminder)
+
+send_user_onnearend -> 1
+
+send_user_onnearend_subject ->(Your subscription %Subscription ends soon)
+
+send_user_onnearend_body -> (Hello %Username your subscription to %Subscription on %Site ends in %Days days.)
+
+send_user_onend -> 1
+send_user_onend_subject ->(Goodbye from %Subscription)
+send_user_onend_body -> (Hello %Username and thank you for being a subscriber to %Subscription on %Site. We hope you will join us again.)

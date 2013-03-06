@@ -1,0 +1,122 @@
+<?php
+// $Id$
+/**
+*@file
+* This file is created to show custom form creation in drupal.
+*/
+
+/**
+* Implementation of hook_perm()
+*/
+function admin_price_setting_perm()
+{
+	return array('access price setting form');
+}
+
+/**
+* Implementation of hook_menu()
+*/
+
+
+
+function admin_price_setting_menu()
+{
+	$items = array();
+	$items['price-settings'] = array(
+		                            'title' => t('Price Settings'),
+		                            'page callback' => 'custom_price_setting_page',
+								    'access arguments' => array('access price setting form'),
+								    'type' => MENU_CALLBACK,
+		                            'file' => 'include/price-setting-page.inc'
+									
+		                          );
+	$items['price-settings/church-business-sponsor'] = array(
+		                            'title' => t('Church Business Sponsor'),
+		                            'page callback' => 'custom_church_business_spnosor',
+								    'access arguments' => array('access price setting form'),
+								    'type' => MENU_CALLBACK,
+		                            'file' => 'include/church_business_sponsor.inc'
+									
+		                          );
+	$items['price-settings/non-church-business-sponsor'] = array(
+		                            'title' => t('Non Church Business Sponsor'),
+		                            'page callback' => 'custom_non_church_business_spnosor',
+								    'access arguments' => array('access price setting form'),
+								    'type' => MENU_CALLBACK,
+		                            'file' => 'include/non_church_business_sponsor.inc'
+									
+		                          );
+	$items['price-settings/church-personal-sponsor'] = array(
+		                            'title' => t(' Church Personal Sponsor'),
+		                            'page callback' => 'custom_church_personal_spnosor',
+								    'access arguments' => array('access price setting form'),
+								    'type' => MENU_CALLBACK,
+		                            'file' => 'include/church_personal_sponsor.inc'
+									
+		                          );
+   $items['price-settings/non-church-personal-sponsor'] = array(
+		                            'title' => t('Non Church Personal Sponsor'),
+		                            'page callback' => 'custom_non_church_personal_spnosor',
+								    'access arguments' => array('access price setting form'),
+								    'type' => MENU_CALLBACK,
+		                            'file' => 'include/non_church_personal_sponsor.inc'
+									
+		                          );
+    $items['price-settings/group-sponsor'] = array(
+		                            'title' => t('Group Sponsor'),
+		                            'page callback' => 'custom_group_spnosor',
+								    'access arguments' => array('access price setting form'),
+								    'type' => MENU_CALLBACK,
+		                            'file' => 'include/group_sponsor.inc'
+									
+		                          );
+	$items['price-settings/workconnection'] = array(
+		                            'title' => t('Work Connection'),
+		                            'page callback' => 'custom_workconnection_spnosor',
+								    'access arguments' => array('access price setting form'),
+								    'type' => MENU_CALLBACK,
+		                            'file' => 'include/workconnection_sponsor.inc'
+									
+		                          );
+	
+	return $items;
+}
+
+/**
+* Implementation of hook_theme()
+*/
+
+function admin_price_setting_theme()
+{
+	return array(
+	             'price_setting_page' => array(
+		                                                          'arguments' => array('price_set_menu'=> NUll),
+	                                                              'template' =>'templates/price-setting-page',
+																),
+		          'custom_church_business_sponsor_form' => array(
+		                                                          'arguments' => array('form'=> NUll),
+	                                                              'template' =>'templates/church-business-sponsor',
+																),
+		         'custom_non_church_business_sponsor_form' => array(
+		                                                          'arguments' => array('form'=> NUll),
+	                                                              'template' =>'templates/non-church-business-sponsor',
+																),
+		        'custom_church_personal_sponsor_form' => array(
+		                                                          'arguments' => array('form'=> NUll),
+	                                                              'template' =>'templates/church-personal-sponsor',
+																),
+		        'custom_non_church_personal_sponsor_form' => array(
+		                                                          'arguments' => array('form'=> NUll),
+	                                                              'template' =>'templates/non-church-personal-sponsor',
+																),
+		      'custom_group_sponsor_form' => array(
+		                                                          'arguments' => array('form'=> NUll),
+	                                                              'template' =>'templates/custom-group-sponsor-form',
+																),
+		      'custom_workconnection_sponsor_form' => array(
+		                                                          'arguments' => array('form'=> NUll),
+	                                                              'template' =>'templates/custom-workconnection-sponsor-form',
+																),
+		        );
+}
+

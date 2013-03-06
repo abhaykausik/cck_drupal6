@@ -1,0 +1,10 @@
+<?php
+// $Id: form_tooltips.module,v 1.1.2.3 2009/04/06 01:29:18 entrigan Exp $
+
+
+
+function form_tooltips_form_alter(){
+  drupal_add_js(drupal_get_path('module', 'form_tooltips').'/form_tooltips.js');
+  drupal_add_css(drupal_get_path('module', 'form_tooltips').'/form_tooltips.css', 'module', 'all', FALSE);
+
+}

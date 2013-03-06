@@ -1,0 +1,56 @@
+<?php
+// $Id$
+/**
+*@file
+* This file is created to show custom form creation in drupal.
+*/
+
+/** 
+* Implementation of hook_block()
+*
+*/
+
+function white_paper_block($op = 'list', $delta = 0, $edit = array())
+{
+  switch($op)
+  {
+	$block = array();
+	case 'list':
+		$blocks[0] = array( 
+		                   'info' => t('White paper list'),
+						   'weight' => 0,
+						   'status' => 1,
+						   'region' => 'right',
+			                   );
+
+	    $blocks[1]['info'] = t('White Paper Form');
+		return $blocks;
+		
+	case 'view':
+		switch($delta)
+	  {
+		case 0:
+			   $block['subject'] = t('White paper list');
+	           $block['content'] = white_paper_list();
+			   break;
+		case 1:
+			  $block['subject'] = t('White paper form');
+	          $block['content'] = white_paper_form();
+			  break;
+	  }
+	
+	return $block;
+
+  }
+}
+
+
+function white_paper_list()
+{
+	return "This is white paper title listing ";
+}
+
+function white_paper_form()
+{
+	return "This is white paper form ";
+}

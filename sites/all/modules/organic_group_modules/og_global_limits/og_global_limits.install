@@ -1,0 +1,121 @@
+<?php
+
+/**
+ * Installation and update function for the og_global_limits
+ *  module.
+ *
+ * @file: og_global_limits.install
+ * @author: Elliott Foster
+ * @copyright: NewMBC 2009
+ */
+
+/**
+ * Implementation of hook_schema()
+ */
+function og_global_limits_schema() {
+  $schema = array();
+
+  $schema['og_global_limits'] = array(
+    'description' => 'Table to track limit overrides for groups',
+    'fields' => array(
+      'nid' => array(
+        'description' => 'The group node ID',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0
+      ),
+      'lim' => array(
+        'description' => 'The number of members that can join a group',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0
+      ),
+    ),
+    'primary key' => array('nid'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Implementation of hook_install()
+ */
+function og_global_limits_install() {
+  // get all the known group types and set a
+  // variable so we don't have to look for it
+  // every time we need to check how many groups
+  // a user owns
+  $group_types = array();
+  $res = db_query("SELECT type FROM {node_type}");
+
+  while ($node = db_fetch_object($res)) {
+    if (og_is_group_type($node->type)) {
+      $group_types[] = $node->type;
+    }
+  }
+
+  variable_set('og_global_limits_group_types', $group_types);
+
+  drupal_install_schema('og_global_limits');
+}
+
+/**
+ * Implementation of hook_update_N()
+ *
+ * Update the variables to allow any group type to be
+ *  limited.
+ * @core: 6
+ * @major: 1
+ * @minor: 0
+ * @maint: 1
+ */
+function og_global_limits_update_6101() {
+  $group_types = variable_get('og_global_limits_group_types', array());
+
+  foreach ($group_types as $type) {
+    variable_set('og_global_limits_'. $type . '_max_per_group', variable_get('og_global_limits_max_per_group', 5)); 
+    variable_set('og_global_limits_'. $type . '_max_groups', variable_get('og_global_limits_max_groups', 10)); 
+  }
+  
+  variable_del('og_global_limits_max_per_group');
+  variable_del('og_global_limits_max_groups');
+
+  return array(
+    array(
+      'success' => TRUE,
+     'query' => "SELECT 'Updated group type variables'"
+    )
+  );
+}
+
+/**
+ * Implementation of hook_update_N()
+ *
+ * Install the og_global_limits schema.
+ * @core: 6
+ * @major: 1
+ * @minor: 0
+ * @maint: 2
+ */
+function og_global_limits_update_6102() {
+  return drupal_install_schema('og_global_limits');
+}
+
+/**
+ * Implementation of hook_uninstall()
+ */
+function og_global_limits_uninstall() {
+  $group_types = variable_get('og_global_limits_group_types', array());
+
+  foreach ($group_types as $type) {
+    variable_del('og_global_limits_' . $type . '_max_per_group');
+    variable_del('og_global_limits_' . $type . '_max_groups');
+  }
+
+  variable_del('og_global_limits_group_types');
+
+  drupal_uninstall_schema('og_global_limits');
+}
+

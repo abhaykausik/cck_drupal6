@@ -1,0 +1,7 @@
+;$Id$
+name = Auto Complete with hidden field.
+description = This module is developed to demo autocomplete text box and store id in a hidden field.
+package = Custom Module
+core = 6.x
+version = "6.x-1.1"
+project = "ankit custom module"

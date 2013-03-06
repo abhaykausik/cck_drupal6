@@ -1,0 +1,213 @@
+# $Id: general.pot,v 1.1.2.1 2009/05/24 21:02:12 prometheus6 Exp $
+#
+# LANGUAGE translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  montharchive.module,v 1.11 2009/05/24 20:55:13 Intrapolitics-1\P6
+#  montharchive.info,v 1.2 2009/05/16 14:07:30 Intrapolitics-1\P6
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2009-05-25 01:57+0500\n"
+"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: montharchive.module:20;40
+msgid "Monthly archives"
+msgstr ""
+
+#: montharchive.module:28;44
+msgid "Monthly %type archives"
+msgstr ""
+
+#: montharchive.module:65
+msgid "more..."
+msgstr ""
+
+#: montharchive.module:88
+msgid ""
+msgstr ""
+
+#: montharchive.module:91
+msgid "Creates archives site wide and by node type."
+msgstr ""
+
+#: montharchive.module:156
+msgid "Monthly %type archives links"
+msgstr ""
+
+#: montharchive.module:158
+msgid "Monthly archives links"
+msgstr ""
+
+#: montharchive.module:184;195
+msgid "Monthly archive settings"
+msgstr ""
+
+#: montharchive.module:208
+msgid "Links and titles"
+msgstr ""
+
+#: montharchive.module:308
+msgid "Global block node types"
+msgstr ""
+
+#: montharchive.module:314
+msgid "Selected node types will be included in the global block and archive pages."
+msgstr ""
+
+#: montharchive.module:322
+msgid "Blocks by node type"
+msgstr ""
+
+#: montharchive.module:328
+msgid "Blocks and archive pages for the selected node types will be created."
+msgstr ""
+
+#: montharchive.module:334
+msgid "Maximum month links in block"
+msgstr ""
+
+#: montharchive.module:338
+msgid "Enter a number to limit the number of months linked in the block, blank or \"0\" to list all months."
+msgstr ""
+
+#: montharchive.module:343
+msgid "Sort links in chronological order"
+msgstr ""
+
+#: montharchive.module:346;362
+msgid "If checked, the list of archive links will be sorted from oldest to newest. Otherwise it will be sorted from newest to oldest"
+msgstr ""
+
+#: montharchive.module:351
+msgid "Show link count"
+msgstr ""
+
+#: montharchive.module:354
+msgid "If checked, the link to each monthly archive page in blocks will show the number of nodes in that month "
+msgstr ""
+
+#: montharchive.module:359
+msgid "Sort archive page in chronological order"
+msgstr ""
+
+#: montharchive.module:367
+msgid "Paginate archive page"
+msgstr ""
+
+#: montharchive.module:370
+msgid "If checked the output will be split into pages. The number of posts will respect the global nodes per page setting."
+msgstr ""
+
+#: montharchive.module:443
+msgid "Global settings"
+msgstr ""
+
+#: montharchive.module:446
+msgid "Link text"
+msgstr ""
+
+#: montharchive.module:448
+msgid "Define how the block link text is constructed."
+msgstr ""
+
+#: montharchive.module:452
+msgid "Archive path"
+msgstr ""
+
+#: montharchive.module:454
+msgid "Enter the path to use as the default archive path. Please use only letters, numbers and underscores (_).<br />The global archive path\r\n      will be \"archive_path/year/month\"."
+msgstr ""
+
+#: montharchive.module:459
+msgid "Archive title"
+msgstr ""
+
+#: montharchive.module:461
+msgid "Enter the base title to use for the archive pages."
+msgstr ""
+
+#: montharchive.module:468;524
+msgid "Replacement patterns"
+msgstr ""
+
+#: montharchive.module:482
+msgid "Node type settings"
+msgstr ""
+
+#: montharchive.module:487
+msgid "Node type archive path"
+msgstr ""
+
+#: montharchive.module:499
+msgid "Titles and paths"
+msgstr ""
+
+#: montharchive.module:508
+msgid " archive title"
+msgstr ""
+
+#: montharchive.module:513
+msgid " archive path"
+msgstr ""
+
+#: montharchive.module:613
+msgid "Long month name (January, February...December)"
+msgstr ""
+
+#: montharchive.module:614
+msgid "Short month name (Jan, Feb...Dec)"
+msgstr ""
+
+#: montharchive.module:615
+msgid "Two digit month (01, 02...12)"
+msgstr ""
+
+#: montharchive.module:616
+msgid "Variable digit month (1, 2...12"
+msgstr ""
+
+#: montharchive.module:617
+msgid "Four digit year"
+msgstr ""
+
+#: montharchive.module:618
+msgid "Two digit year"
+msgstr ""
+
+#: montharchive.module:619
+msgid "Machine readable type name"
+msgstr ""
+
+#: montharchive.module:620
+msgid "Displayable type label"
+msgstr ""
+
+#: montharchive.module:196
+msgid "Configure node types for which blocks will be generated."
+msgstr ""
+
+#: montharchive.module:209
+msgid "Configure path names for node types for which blocks will be generated and date format of the link text."
+msgstr ""
+
+#: montharchive.module:0
+msgid "montharchive"
+msgstr ""
+
+#: montharchive.info:0
+msgid "Month Archive"
+msgstr ""
+
+#: montharchive.info:0
+msgid "Create block containing a list of monthly archives."
+msgstr ""
+

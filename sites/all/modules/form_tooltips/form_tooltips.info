@@ -1,0 +1,19 @@
+; $Id: form_tooltips.info,v 1.1.2.3 2009/04/06 01:29:18 entrigan Exp $
+name = Form Tooltips
+description = Places help text on node/*/edit and node/add pages into js tooltip form to increase form readability.
+core = 6.x
+
+
+; Information added by drupal.org packaging script on 2009-03-28
+version = "6.x-1.0"
+core = "6.x"
+project = "form_tooltips"
+datestamp = "1238199638"
+
+
+; Information added by drupal.org packaging script on 2009-04-07
+version = "6.x-1.2-alpha1"
+core = "6.x"
+project = "form_tooltips"
+datestamp = "1239125133"
+

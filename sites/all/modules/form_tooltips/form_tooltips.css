@@ -1,0 +1,17 @@
+/* $Id: form_tooltips.css,v 1.1.2.4 2009/04/06 03:15:05 entrigan Exp $ */
+
+#desctip {
+  position: absolute;
+  padding: .5em;
+  border: 1px solid #999;
+  font-family:arial,helvetica, sans-serif;
+  font-size:12px;
+  width:300px;
+  line-height:1.4em;
+  background-color:#0F91F0;
+  color:#fff;
+}
+
+div.admin-dependencies, div.admin-required{
+color:#ccc;
+}

@@ -1,0 +1,76 @@
+<?php
+// $Id$
+/**
+*@file
+* This file is created to show custom form creation in drupal.
+*/
+
+/**
+* Implementation of hook_perm()
+*/
+
+ function pad_admin_form_perm()
+ {
+	 return array('access personal ad month setting form');
+ }
+
+/**
+* Implementation of hook_menu()
+*/
+
+
+
+function pad_admin_form_menu()
+{
+	$items = array();
+	$items['personalad-month-setting'] = array( 'title' => t('Select One month personal category'),
+		                                        'page callback' => 'pad_month_setting_page',
+									            'access arguments' => array('access personal ad month setting form'),
+								                'type' =>MENU_CALLBACK,
+									
+		                                       );
+	
+	return $items;
+}
+
+function pad_month_setting_page()
+{
+	$selected_value = variable_get('pad_one_month_ad','');
+
+	$select_option='';
+	if($selected_value)
+	{
+     	foreach($selected_value as $key => $value)
+		{
+			$select_option  .= $key ."-". $value ."<br />";
+		}
+	}
+	$output='';
+	
+	$output .= drupal_get_form('pad_month_form');
+
+	$output .= "hi".$selected_value ;
+
+	return $output;
+}
+
+
+function pad_month_form()
+{
+	$options = array('red'=> 'Red', 'blue' => 'Blue');
+
+	$form['pad_one_month_ad'] = array(
+		'#title' => t('Select One Month ad'),
+		'#description' => t('please slesct checkboxes for one month ad'),
+		'#required' => TRUE,
+		'#type' =>'checkboxes',
+	    '#options' => $options,
+		'#default_value' => variable_get('pad_one_month_ad',''),
+	);
+	
+
+   //return $form;
+  return system_settings_form($form);
+
+}
+

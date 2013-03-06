@@ -1,0 +1,9 @@
+<?php
+
+function og_schedule_install() {
+
+}
+
+function og_schedule_uninstall() {
+  db_query('DELETE FROM variable WHERE name LIKE \'og_schedule_%\'');
+}

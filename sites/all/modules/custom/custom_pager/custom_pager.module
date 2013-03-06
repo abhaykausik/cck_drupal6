@@ -1,0 +1,128 @@
+<?php
+// $Id$
+/**
+*@file
+* This file is created to show custom pager creation in drupal.
+* Syntax:
+* pager_query($query, $limit = 10, $element = 0, $count_query = NULL)
+*/
+
+
+/**
+* Implementation of hook_menu()
+*/
+
+
+
+function custom_pager_menu()
+{
+	$items = array();
+	$items['simple-pager'] = array( 'title' => t('Demo of simple pager'),
+		                           'page callback' => 'custom_simple_pager',
+									'access arguments' => array('access content'),
+								   'type' =>MENU_CALLBACK,
+									
+		                          );
+
+	$items['table-pager'] = array( 'title' => t('Demo of tabular pager'),
+		                           'page callback' => 'custom_table_pager',
+									'access arguments' => array('access content'),
+								   'type' =>MENU_CALLBACK,
+									
+		                          );
+	
+	return $items;
+}
+
+/**
+* Folowing function shows how to implement simple
+* pager in drupal 6
+*/
+
+function custom_simple_pager()
+{
+	$limit= 10;
+
+	$sql_cnt = "SELECT COUNT(*) FROM {node}";
+	$sql = "SELECT * FROM {node} ORDER BY title ASC";
+	$page_sql = pager_query($sql, $limit, 0, $sql_cnt);
+
+	$output = '';
+	while($row = db_fetch_object($page_sql))
+	{
+		$node_title = $row->title;
+		$node_path = "node/".$row->nid;
+		$node_options = array(
+								   'attributes' => array(),
+								   'html' => TRUE,
+								   'query' => array('destination' => arg(0)),
+							   );
+	    $node_edit = 'edit';
+		$node_edit_path = "node/".$row->nid."/edit";
+		$node_edit_options = array(
+								   'attributes' => array(),
+								   'html' => TRUE,
+								   'query' => array('destination' => arg(0)),
+							   );
+		
+
+		$output .='<div>'.l($node_title, $node_path, $node_options ).'&nbsp;&nbsp;'.l($node_edit, $node_edit_path, $node_edit_options).'</div>';
+	}
+
+	$output .= theme('pager', NULL, $limit, 0);
+
+	return $output;
+}
+
+/**
+* Folowing function shows how to implement pager
+* with table structur in drupal 6
+*/
+
+function custom_table_pager()
+{
+	$limit= 10;
+	$tableHeader = array(
+		                  array('data' => t('Nid')),
+		                  array('data' => t('Title'), 'field' => 'title', 'sort' => 'asc'),
+		                  array('data' => t('View')),
+		                  array('data' => t('Edit')),
+						  array('data' => t('Date'), 'field' => 'created', 'sort' => 'desc'),
+		                 );
+
+	$sql_cnt = "SELECT COUNT(*) FROM {node}";
+	$sql = "SELECT * FROM {node}".tablesort_sql($tableHeader);
+	$page_sql = pager_query($sql, $limit, 0, $sql_cnt);
+
+	$output = '';
+	$node_data = array();
+	while($row = db_fetch_object($page_sql))
+	{
+		$createdDate = date('jS M, Y',$row->created);
+		$node_title = 'view';
+		$node_path = "node/".$row->nid;
+
+		$node_edit = 'edit';
+		$node_edit_path = "node/".$row->nid."/edit";
+		$node_edit_options = array(
+								   'attributes' => array(),
+								   'html' => TRUE,
+								   'query' => array('destination' => arg(0)),
+							   );
+		
+      $node_data[] = array($row->nid, $row->title,  l($node_title, $node_path), l($node_edit, $node_edit_path, $node_edit_options),$createdDate);
+		
+	}
+
+	
+
+	$output .= theme('table', $tableHeader, $node_data);
+
+	$output .= theme('pager', NULL, $limit, 0);
+
+	return $output;
+}
+
+
+
+

@@ -1,0 +1,7 @@
+;$Id$
+name = Custom Prayer Pat
+description = This module is developed to show prayer pat.
+package = Custom Module
+core = 6.x
+version = "6.x-1.1"
+project = "ankit custom module"

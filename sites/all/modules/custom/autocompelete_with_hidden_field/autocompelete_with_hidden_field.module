@@ -1,0 +1,96 @@
+<?php
+// $Id$
+/**
+*@file
+* This file is created to show custom pager creation in drupal.
+* 
+
+*/
+
+/**
+* Implementation of hook_init()
+*/
+function autocompelete_with_hidden_field_init()
+{
+    drupal_add_js(drupal_get_path('module', 'autocompelete_with_hidden_field').'/autocompelete_with_hidden_field.js');
+}
+
+/**
+* Implementation of hook_menu()
+*/
+
+function autocompelete_with_hidden_field_menu()
+{
+    $items   = array();
+    $items['auto-complete-hidden-field-demo']      = array(
+                                                            'title' => t('Auto Complete With Hidden Field'),
+                                                            'page callback' => 'drupal_get_form',
+                                                            'page arguments' => array('custom_achfd'),
+                                                            'access arguments' => array('access content'),
+                                                            'type' => MENU_NORMAL_ITEM,
+                                                           );
+    $items['auto-complete-hidden-field-demo-auto'] = array(
+                                                            'title' => t('Auto Complete With Hidden Field'),
+                                                            'page callback' => 'autocomplete_data_achfd',
+                                                            'access arguments' => array('access content'),
+                                                            'type' => MENU_CALLBACK,
+                                                  
+                                                           );
+     
+    return $items;
+}
+
+function custom_achfd()
+{
+    $form = array();
+    $form['auto-hidden-text'] = array(
+                                       '#title' => t('Auto Complete'),
+                                        '#type' => 'textfield',
+                                        '#weight' => 1,
+                                        '#autocomplete_path' => 'auto-complete-hidden-field-demo-auto',
+                                      );
+    $form['auto-hidden'] =array(
+                                 '#title' => t('Hidden Field'),
+                                 '#type' => 'textfield',
+                                 '#weight' => 2
+                                
+                                );
+    $form['auto-hidden-submit'] =array(
+                  '#type' =>'submit',
+                  '#value' => t('Submit'),
+                  '#weight' =>3
+                 );
+    return $form;
+}
+
+function custom_achfd_submit($form, &$form_state)
+{
+    print_r($form_state['values']);
+    exit();
+}
+
+function autocomplete_data_achfd($string='')
+{
+    $data = array();
+    $sql = "SELECT n.nid, n.title FROM {node} AS n WHERE LOWER(n.title) LIKE LOWER('%s%%')";
+
+    
+    $result = db_query_range($sql, $string, 0, 20);
+    while($row = db_fetch_object($result))
+    {
+        $data[$row->nid.'-'.$row->title] = $row->title;
+    }
+
+    $data_cnt = count($data);
+    if($data_cnt==0)
+    {
+        $a['No Result'] = 'No Result';
+        print drupal_to_js($a);
+        exit();
+    }
+    else
+    {
+        print drupal_to_js($data);
+        exit();
+    }
+}

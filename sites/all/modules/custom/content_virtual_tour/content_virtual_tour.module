@@ -1,0 +1,96 @@
+  <?php
+// $Id$
+/**
+*@file
+* This file is created to show custom form creation in drupal.
+*/
+
+/** 
+* Implementation of hook_block()
+*
+*/
+
+function content_virtual_tour_block($op = 'list', $delta = 0, $edit = array())
+{
+  switch($op)
+  {
+	case 'list':
+		$blocks[0]['info'] = t('Virtual Tour of Fortis');
+		return $blocks;
+		
+	case 'view':
+	$block['subject'] = t('Virtual Tour of Fortis');
+	$block['content'] = virtual_tour_content();
+	return $block;
+
+  }
+}
+
+function virtual_tour_content()
+{
+  $output = '';
+  $output .= '<h5>Virtual Tour of Fortis</h5>';
+   $output .= drupal_get_form('virtual_tour_form');
+  return  $output;
+}
+
+function virtual_tour_form()
+{
+   $hosp = array();
+   $hosp['select']='Select Hospital';
+   $res =db_query("SELECT domain_id, sitename FROM domain ORDER BY domain_id");
+   while($row = db_fetch_object($res))
+   {
+        $hos_id = $row->domain_id;
+	$hosp_name_arr = explode(",", $row->sitename);
+	if($hosp_name_arr[1]=='')
+	{
+	  $hosp_name = $hosp_name_arr[0];
+	}
+	else
+	{
+	  $hosp_name = $hosp_name_arr[1];
+	}
+
+	$hosp[$hos_id]=$hosp_name;
+   }
+
+   $form['virtual-select-box'] = array(
+                                        '#title'=> t(''),
+				        '#required' => TRUE,
+				        '#type'=> 'select',
+				        '#options'=> $hosp,
+				        '#weight' => 1,
+					);
+   $form['virtual-submit'] = array(
+                                    '#type' => 'submit',
+			            '#value' =>'go',
+			            '#weight' => 2,
+				  );
+
+   return $form;
+}
+
+function virtual_tour_form_validate($form, &$form_state)
+{
+   
+   
+   if($form_state['values']['virtual-select-box']=='select')
+   {
+	form_set_error('virtual-select-box', t('Please select a Hospital'));
+    }
+     
+
+   
+}
+function virtual_tour_form_submit($form, &$form_state)
+{
+        $dom_id = $form_state['values']['virtual-select-box'];
+        $sql =db_query("SELECT scheme, subdomain FROM domain WHERE domain_id= $dom_id ");
+        $res = db_fetch_object($sql);
+	$scheme = $res->scheme;
+	$subdomain = $res->subdomain;
+	$url = $scheme.'://'.$subdomain;
+	drupal_goto($url);
+	
+}

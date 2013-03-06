@@ -1,0 +1,25 @@
+<?php
+
+/**
+ * @file
+ * friendlist_ui install file
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+/*
+function friendlist_ui_install() {
+}
+*/
+
+/**
+ * Implementation of hook_uninstall().
+ */
+/*
+function friendlist_ui_uninstall() {
+}
+*/
+
+
+

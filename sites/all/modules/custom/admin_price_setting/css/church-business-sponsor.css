@@ -1,0 +1,29 @@
+
+h2{color:#1364B5;font-size:23px;}
+/* Header CSS */
+.c-header{border:0px solid red; overflow:hidden; clear:both; margin-bottom:5px; background:#0896f7; color:#ffffff;}
+.c-header label { margin-left:20px; width:171px !important; border:0px solid red; float:left; font-weight:bold; }
+.c-header .upper{border:0px solid blue; float:left; text-align:center; font-weight:bold;}
+.c-header .form-text{color:#ffffff !important;}
+
+/** FORM Css */
+.c-one-group{border:0px solid red; overflow:hidden; clear:both; margin:0px; margin-bottom:2px;}
+.c-component-1{border:0px solid green; margin-right:20px !important;}
+.c-component-2{border:0px solid olive; margin-right:20px !important;}
+.c-component-3{border:0px solid blue; margin-right:20px !important;}
+.c-one-group label { margin-left:20px; width:171px !important; border:0px solid red; float:left;}
+.c-one-group .form-item{border:0px solid blue; float:left;}
+.c-even{background:#eff7ff;}
+.c-odd{background:#deeff7;}
+.c-submit{margin:20px 0px; width:100%; text-align:center; }
+
+
+/*** PRICE SETTING MAIN PAGE CSS ****/
+#price-setting-menu-item{  margin: 0 0 30px; padding:0px; border:0px solid red;}
+#price-setting-menu-item ul{ margin:0px; padding:0px 10px; border:0px solid green;}
+#price-setting-menu-item ul li{ margin:0px; padding:5px 0px; list-style: circle outside none; border:0px solid olive;}
+#price-setting-menu-item ul li a{ margin:0px; padding:0px; font-weight:bold; font-size:14px; border:0px solid yellow;}
+#price-setting-menu-item ul li a:hover{ margin:0px; padding:0px; border:0px solid blue;}
+
+.form-text {width:160px !important;}
+input.form-text, textarea, select {text-align:right;}

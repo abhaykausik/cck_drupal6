@@ -1,0 +1,7 @@
+;$Id$
+name = Personal ads month duration seccting form.
+description = This module is created to seclect on month ad.
+package = Custom Module
+core = 6.x
+version = "6.x-1.1"
+project = "ankit custom module"

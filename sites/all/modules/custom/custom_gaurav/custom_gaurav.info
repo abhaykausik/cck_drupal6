@@ -1,0 +1,9 @@
+name = Custom Gaurav
+description = "For domain specific search."
+core = 6.x
+
+; Information added by drupal.org packaging script on 2011-06-16
+version = "6.x-1.8"
+core = "6.x"
+project = "custom_gaurav"
+datestamp = "1308238014"

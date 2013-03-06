@@ -1,0 +1,204 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * Permissions testing for OG Event module.
+ */
+
+class OgEventPermissionsTestCase extends DrupalWebTestCase
+{
+  public static function getInfo() {
+    return array(
+      'name' => t("Permissions"),
+      'description' => t("Permissions testing for OG Event module."),
+      'group' => t("OG Event"),
+    );
+  }
+
+  /**
+   * @var object
+   */
+  protected $_groupType;
+
+  /**
+   * @var object
+   */
+  protected $_postType;
+  
+  /**
+   * @var object
+   */
+  protected $_groupAdmin;
+
+  /**
+   * @var object
+   */
+  protected $_groupMember;
+  
+  public function setUp() {
+    parent::setUp('og', 'og_event');
+
+    // Create content types.
+    $this->_groupType = $this->drupalCreateContentType(array('type' => 'group'));
+    $this->_postType = $this->drupalCreateContentType(array('type' => 'post'));
+
+    // Configure OG.
+    variable_set('og_content_type_usage_'. $this->_groupType->type, 'group');
+    variable_set('og_content_type_usage_'.  $this->_postType->type, 'group_post_standard');
+    menu_rebuild();
+
+    // Create users.
+    $permissions = array(
+      'access content',
+      'create ' . $this->_groupType->type . ' content',
+      'edit own ' . $this->_groupType->type . ' content',
+      'create ' . $this->_postType->type . ' content',
+      'edit own ' . $this->_postType->type . ' content',
+    );
+    $this->_groupAdmin = $this->drupalCreateUser($permissions);
+    $this->_groupMember = $this->drupalCreateUser($permissions);
+  }
+
+  public function tearDown() {
+    parent::tearDown();
+  }
+
+  /**
+   * Create a group with logged in user.
+   * 
+   * Thanks to OG tests for this code (modified).
+   * 
+   * @return object
+   *   Created node object.
+   */
+  protected function _createGroup() {
+    $type = $this->_groupType->type;
+
+    $edit['title'] = $this->randomName(8);
+    $edit['body']= $this->randomName(32);
+    $edit['og_description'] = $this->randomName(16);
+    $edit['og_selective'] = OG_OPEN;
+    $type_hyphen = str_replace('_', '-', $type);
+
+    $this->drupalGet('node/add/' . $type_hyphen);
+    $this->drupalPost('node/add/' . $type_hyphen, $edit, "Save");
+
+    // Check that the form has been submitted.
+    $this->assertRaw(t("%title has been created.", array('%title' => $edit['title'])), "Group created.");
+
+    // Assert the node has loaded properly.
+    $node = node_load(array('title' => $edit['title']), NULL, TRUE);
+    $this->assertTrue(is_object($node) && isset($node->nid), "Group loaded properly.");
+
+    return $node;
+  }
+
+  /**
+   * Create a group post with logged in user, in the given group.
+   * 
+   * @param object $group
+   *   Group node.
+   * 
+   * @return object
+   *   Post node.
+   */
+  protected function _createPost($group, $eventOptions = array(
+    'og_event_open_reg' => TRUE,
+    'og_event_open_edit' => FALSE,
+    'og_event_open_role' => FALSE,
+  )) {
+    $type = $this->_postType->type;
+
+    $edit['title'] = $this->randomName(8);
+    $edit['body']= $this->randomName(32);
+
+    // Add given group as post group.
+    $edit['og_groups['. $group->nid .']'] = TRUE;
+
+    // Add custom options.
+    $edit += $eventOptions;
+
+    $type_hyphen = str_replace('_', '-', $type);
+
+    $this->drupalGet('node/add/' . $type_hyphen);
+    $this->drupalPost('node/add/' . $type_hyphen, $edit, "Save");
+
+    // Check that the form has been submitted.
+    $this->assertRaw(t("%title has been created.", array('%title' => $edit['title'])), "Post created.");
+
+    // Assert the node has loaded properly.
+    $node = node_load(array('title' => $edit['title']), NULL, TRUE);
+    $this->assertNotNull($node, "Post loaded properly.");
+    $this->assertEqual($edit['og_event_open_reg'], $node->og_event_open_reg, "Created post event option matches.");
+    $this->assertEqual($edit['og_event_open_edit'], $node->og_event_open_edit, "Created post event option matches.");
+    $this->assertEqual($edit['og_event_open_role'], $node->og_event_open_role, "Created post event option matches.");
+
+    return $node;
+  }
+
+  public function testBasicVisibilityRights() {
+    // Login as group admin, create a group and a post.
+    $this->drupalLogin($this->_groupAdmin);
+    $group = $this->_createGroup();
+    $post = $this->_createPost($group);
+
+    // Check participant list callback works.
+  }
+
+  public function testNonMemberRigths() {
+    // Login as group admin, create a group and a post.
+    $this->drupalLogin($this->_groupAdmin);
+    $group = $this->_createGroup();
+    $post = $this->_createPost($group);
+
+    // Admin see the subscribe link.
+    $this->drupalGet('node/' . $post->nid);
+    $this->assertText(t("Subscribe"), "Admin can see the subscribe link.");
+
+    // And can go to the URL.
+    $this->assertResponse(200, "Admin can force subscribe to the event.");
+
+    // Check it worked.
+    $this->drupalGet('node/' . $post->nid . '/participants');
+    $this->assertText($this->_groupAdmin->name, "Admin has subscribed sucessfully.");
+
+    // Login non member user, check no 'subscribe' link.
+    $this->drupalLogin($this->_groupMember);
+    $this->drupalGet('node/' . $post->nid);
+    $this->assertNoText("Subscribe", "Non member cannot see the subscribe link.");
+
+    // Force get on subscribe URL, check for 403.
+    $this->drupalGet('node/' . $post->nid . '/register-event');
+    $this->assertResponse(403, "Non member cannot force subscribe to the event.");
+
+    // Join group.
+    $this->drupalGet('og/subscribe/' . $group->nid);
+    $this->drupalPost('og/subscribe/' . $group->nid, array(), "Join");
+    $this->assertRaw("You are now a member of", "Member did join the group.");
+
+    // Member now see the subscribe link.
+    $this->drupalGet('node/' . $post->nid);
+    $this->assertText(t("Subscribe"), "Member can see the subscribe link.");
+
+    // And can go to the URL.
+    $this->assertResponse(200, "Admin can force subscribe to the event.");
+
+    // Check it worked.
+    $this->drupalGet('node/' . $post->nid . '/participants');
+    $this->assertText($this->_groupMember->name, "Member has subscribed sucessfully.");
+  }
+
+  /*
+  public function testRoleRights() {
+    // Login as group admin, create a group and a post.
+    $this->drupalLogin($this->_groupAdmin);
+    $group = $this->_createGroup();
+    $post = $this->_createPost($group);
+
+    // Hit subscribe page and check for the role form item.
+
+    // Validate the form using a role, and check the participant list.
+  }
+   */
+}

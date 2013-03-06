@@ -1,0 +1,62 @@
+<?php
+// $Id$
+/**
+*@file
+* This file is created to show custom pager creation in drupal.
+* 
+
+*/
+
+
+/**
+* Implementation of hook_menu()
+*/
+
+
+
+function table_size_menu()
+{
+	$items = array();
+	$items['admin/table-size'] = array( 'title' => t('Table Size'),
+		                           'page callback' => 'custom_table_size',
+									'access arguments' => array('admin site configuraion'),
+								   'type' =>MENU_NORMAL_ITEM,
+									
+		                          );
+
+	
+	
+	return $items;
+}
+
+/**
+* Folowing function shows how to implement simple
+* pager in drupal 6
+*/
+
+function custom_table_size()
+{
+
+	$output='';
+	$output .= "<table  border='1' cellpadding='5' cellspacing='5'>";
+    $output .="<tr><th>Table Name:</th><th>Data Length:</th><th>Index Length:</th><th>Table Size in Bytes:</th><th>Table Size MegaBytes:</th></tr>";
+
+
+    $result = db_query("SHOW TABLE STATUS");
+
+	while($foo = db_fetch_object($result))
+	{
+		$tblSize = $foo->Data_length + $foo->Index_length;
+		$tblSizemb = (int)($tblSize/1024)/1024;
+
+	$output .= "<trwidth='100%'><td>".$foo->Name."</td><td>".$foo->Data_length."</td><td>".$foo->Index_length."</td><td>".$tblSize."</td><td>".$tblSizemb."</td></tr>";
+	}
+	
+
+   $output .="</table>";
+   
+
+return $output;
+	
+
+}

@@ -1,0 +1,118 @@
+<?php
+// $Id$
+/**
+*@file
+* This file is created to implement pryer partenr functionality.
+* 
+
+*/
+
+
+/**
+* Implementation of hook_menu()
+*/
+
+
+
+function prayer_partner_menu()
+{
+	$items = array();
+	$items['prayer-partner'] = array(
+                                     'title' => t('Prayer Partner'),
+		                             'page callback' => 'custom_pp_data',
+								     'access arguments' => array('access content'),
+								     'type' =>MENU_NORMAL_ITEM,
+									
+		                          );
+    $items['prayer-partner/autocomplete'] = array(
+                                     'title' => t('Prayer Partner autocomplete'),
+		                             'page callback' => 'custom_pp_data_auto_complete',
+								     'access arguments' => array('access content'),
+								     'type' =>MENU_NORMAL_ITEM,
+									
+		                          );
+  
+
+	
+	
+	return $items;
+}
+
+/**
+* callback of prayer partner page
+*/
+function custom_pp_data()
+{
+    $output= '';
+    $output .= drupal_get_form('custom_pp_form');
+    return $output;
+}
+
+/**
+* Definition of prayer partent form
+*/
+
+function custom_pp_form()
+{
+    
+    $form = array();
+    $form['pp-text'] = array(
+                                '#title' => t('Select your paryer partner'),
+                                '#type' => 'textfield',
+                                '#required' => TRUE,
+                                '#weight' => 1,
+                                '#autocomplete_path' => 'prayer-partner/autocomplete',
+                                
+                               );
+    $form['pp-submit'] = array(
+                                '#type'  => 'submit',
+                                '#weight' =>2,
+                                '#value' => t('Prayer Partner')
+                                );
+    return $form;
+}
+
+/**
+* prayar partner form validation
+*/
+function custom_pp_form_validate($form, &$form_state)
+{
+   
+    if($form_state['values']['pp-select']=='select')
+    {
+     form_set_error('pp-select', t('Please select your prayer partner'));
+    }
+    
+}
+
+/** 
+* prayer partner form submition
+*/
+
+function custom_pp_form_submit($form, &$form_state)
+{
+    //$user_id = $form_state['values']['pp-select'];
+   // $user_display_name = getUserDisplayName($user_id);
+    drupal_set_message(t('You prayer partner request has been sent to '));
+
+    
+   
+}
+
+function custom_pp_data_auto_complete($string)
+{
+  $matches = array();
+   global $user;
+   $org_id = 1217;
+  
+// $result = db_query_range("SELECT u.uid FROM {users} AS u JOIN {og_uid} AS ou ON ou.uid=u.uid WHERE ou.nid=%d AND u.uid!=%d AND LOWER(name) LIKE LOWER('%s%%')", $org_id, $user->uid, $string, 0, 20);
+  $result = db_query_range("SELECT u.uid, u.name FROM {users} AS u WHERE  LOWER(name) LIKE LOWER('%s%%')", $org_id, $user->uid, $string, 0, 20);
+
+  while ($user = db_fetch_object($result)) {
+      //$userDisplayName = getUserDisplayName($user->uid);
+    $matches[$user->uid] = check_plain($user->name);
+  }
+
+  print drupal_to_js($matches);
+  exit();
+} 

@@ -1,0 +1,108 @@
+<?php
+
+function lm_paypal_meter_block($op = 'list', $delta = 0, $edit = array()) {
+  if ($op == 'list') {
+    $blocks[0] = array(
+      'info' => t('LM Paypal campaign meter'),
+    );
+    return $blocks;
+  }
+  else if ($op == 'configure' && $delta == 0) {
+    $form['lm_paypal_meter_currency'] = array(
+      '#type' => 'select',
+      '#title' => t('Currency'),
+      '#default_value' => variable_get('lm_paypal_meter_currency', '$'),
+      '#options' => drupal_map_assoc(array('$', '€', '£')),
+    );
+    $form['lm_paypal_meter_goal'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Goal'),
+      '#default_value' => variable_get('lm_paypal_meter_goal', 0),
+    );
+    $form['lm_paypal_meter_start_date'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Campaign start date'),
+      '#default_value' => variable_get('lm_paypal_meter_start_date', time()),
+    );
+    return $form;
+  }
+  else if ($op == 'save' && $delta == 0) {
+    variable_set('lm_paypal_meter_currency', $edit['lm_paypal_meter_currency']);
+    variable_set('lm_paypal_meter_goal', $edit['lm_paypal_meter_goal']);
+    variable_set('lm_paypal_meter_start_date', $edit['lm_paypal_meter_start_date']);
+  }
+  else if ($op == 'view') {
+    switch($delta) {
+      case 0:
+        $block = array(
+          'subject' => t('Donation meter'),
+          'content' => lm_paypal_meter_display()
+        );
+        break;
+    }
+    return $block;
+  }
+}
+
+function lm_paypal_meter_display() {
+  // your total fundraising goal
+  $goal = variable_get('lm_paypal_meter_goal', 0); 
+  // since when day the fund raising starts
+  $start_date = variable_get('lm_paypal_meter_start_date', time());
+  
+  $result = db_query('SELECT d.uid, d.datepaid, d.mc_gross, d.mc_fee, d.mc_currency FROM {lm_paypal_donations} d WHERE datepaid > %d', $start_date); 
+
+  $total = $count = 0;
+
+  while ($donation = db_fetch_object($result)) { 
+    $total += $donation->mc_gross - $donation->mc_fee;
+    $count++;
+  }
+  
+  return theme('lm_paypal_meter_display', $goal, $total, $count);
+}
+
+function theme_lm_paypal_meter_display($goal, $total, $count) {
+  $output = '';
+
+  if (!empty($goal) && $goal != 0) {
+    $progress_pct = 100 * $total/$goal;
+  }
+
+  $output .= t('!donations received, !amount raised.',
+    array('!donations' => format_plural($count, '@count donation', '@count donations'), 
+      '!amount' => theme('lm_paypal_meter_currency', round($total,2))));
+
+  if (isset($progress_pct)) {
+    $output .= t(' Our goal is !goal', array('!goal' => theme('lm_paypal_meter_currency', $goal)));
+    $o = "<table cellpadding=0 cellspacing=0 border=2px><tr>";
+    $o .= '<td width="'.round($progress_pct,0).'%" bgcolor="#00FF00" align="right">';
+    if ($progress_pct > 50.0) {
+      $o .= round($progress_pct,1)."%&nbsp;";
+    } 
+    $o .= '</td><td width="'.round(100-$progress_pct,0).'%" bgcolor="#FFFFFF">&nbsp;';
+    if ($progress_pct < 50.0) {
+      $o .= round($progress_pct,1)."%";
+    }
+    $o .= "</td></tr></table><br/>";
+  }
+  
+  $output .= $o;
+    
+  return $output;
+}
+
+function theme_lm_paypal_meter_currency($value) {
+  return variable_get('lm_paypal_meter_currency', '$') . sprintf("%0.2f", $value);
+}
+
+function lm_paypal_meter_theme($existing, $type, $theme, $path) {
+  return array(
+    'lm_paypal_meter_currency' => array(
+      'arguments' => array('value' => 0),
+    ),
+    'lm_paypal_meter_display' => array(
+      'arguments' => array('goal' => 0, 'total' => 0, 'count' => 0),
+    ),
+  );
+}

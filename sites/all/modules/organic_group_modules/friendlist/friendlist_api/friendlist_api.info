@@ -1,0 +1,14 @@
+name = Friendlist API
+description = "The underlying API for Friendlist"
+core = 6.x
+package = Friendlist
+version = "6.x-1.x-dev"
+core = "6.x"
+project = "friendlist"
+
+; Information added by drupal.org packaging script on 2011-07-07
+version = "6.x-1.x-dev"
+core = "6.x"
+project = "friendlist"
+datestamp = "1309998362"
+

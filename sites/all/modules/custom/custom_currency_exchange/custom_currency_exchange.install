@@ -1,0 +1,68 @@
+<?php
+// $Id$
+
+/**
+* Implementation of hook_install()
+*/
+
+function custom_currency_exchange_install()
+{
+   // Use schema api to create database
+    drupal_install_schema('custom_currency_exchange');
+    $sql = "INSERT INTO {custom_currency_exchange} (usd, pond, euro, yen, inr) VALUES ('1.00', '1.00', '1.00', '1.00', '1.00')";
+    db_query($sql);
+}
+
+/**
+* Implementation of hook_uninstall()
+*/
+function custom_currency_exchange_uninstall()
+{
+   // Use schema api to delete database
+   drupal_uninstall_schema('custom_currency_exchange');
+}
+
+/**
+* Implemenation of hook_schema()
+*/
+
+function custom_currency_exchange_schema()
+{
+	$schema['custom_currency_exchange'] = array(
+	                                               'description' => t('This table is created to store different currecy value'),
+						       'fields'=> array(
+						                          'usd' => array(
+									                  'type' => 'text',
+											  'not null' => TRUE,
+											  'defult' => '0.00',
+											  'description' => t('Enter USD value '),
+											),
+									  'pond' => array(
+									                  'type' => 'text',
+											  'not null' => TRUE,
+											  'defult' => '0.00',
+											  'description' => t('Enter POND value '),
+											),
+									  'euro' => array(
+									                  'type' => 'text',
+											  'not null' => TRUE,
+											  'defult' => '0.00',
+											  'description' => t('Enter EURO value '),
+											),
+									'yen' => array(
+									                  'type' => 'text',
+											  'not null' => TRUE,
+											  'defult' => '0.00',
+											  'description' => t('Enter YEN value '),
+											),
+									  'inr' => array(
+									                  'type' => 'text',
+											  'not null' => TRUE,
+											  'defult' => '0.00',
+											  'description' => t('Enter INR value '),
+											),
+									),
+
+						     );
+return $schema;
+}

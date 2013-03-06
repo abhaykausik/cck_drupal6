@@ -1,0 +1,13 @@
+name = "LM PayPal Meter"
+description = "Provides PayPal campaign meter."
+package = "LM PayPal"
+core = 6.x
+dependencies[] = lm_paypal
+dependencies[] = lm_paypal_donations
+
+; Information added by drupal.org packaging script on 2011-12-30
+version = "6.x-2.x-dev"
+core = "6.x"
+project = "lm_paypal"
+datestamp = "1325247806"
+

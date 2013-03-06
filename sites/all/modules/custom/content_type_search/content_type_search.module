@@ -1,0 +1,116 @@
+<?php
+// $Id$
+/**
+*@file
+* This file is created to show custom form creation in drupal.
+*/
+
+
+/**
+* Implementation of hook_menu()
+*/
+
+
+
+function content_type_search_menu()
+{
+	$items = array();
+	$items['content-type-search'] = array( 'title' => t('Search Node Type'),
+		                           'page callback' => 'my_custom_form_node',
+									'access arguments' => array('access content'),
+								   'type' =>MENU_CALLBACK,
+									
+		                          );
+	
+	return $items;
+}
+
+function my_custom_form_node()
+{
+	$output .= drupal_get_form('mera_from_node');
+	$xyz = arg(1);
+	if($xyz){
+		$number_results = 10;
+		$columns = array(
+							'nid' => t('ID'),
+							'type' => t('Type'),
+							'title' => t('Title'),
+						  );
+		$sql = ("SELECT nid, type, title FROM {node} AS n WHERE n.status = 1 AND n.type='$xyz'");
+		$sql_count = ("SELECT * FROM {node} AS n WHERE n.status = 1 AND n.type='$xyz'");
+		$header = array();
+  foreach ($columns as $key => $value) {
+											$header[] = array(
+											  'data' => $value,
+											  'field' => $key,
+											);
+										  }
+  $sql .= tablesort_sql($header);
+
+  $resource = pager_query($sql, $number_results, 0, $sql_count, implode(', ', array_keys($columns)));
+  $results = array();
+  while ($row = db_fetch_array($resource)) {
+    $results[] = $row;  
+  }
+
+  $output .= theme('table', $header, $results);
+  $output .= theme('pager', NULL, $number_results, 0);
+		
+		
+		
+	}
+	return $output;
+}
+
+
+function mera_from_node()
+{
+	global $user;
+	
+	
+	$form['textfield-node-type'] = array(
+										  '#title' => t('Enter Node Type'),
+										  '#required' => TRUE,
+										  '#size' => 30,
+										  '#maxlength'=>20,
+										  '#default_value' => '',
+										  '#type'=> 'textfield',
+										  '#attributes' => array('class' => 'class-one class-two'),
+										  '#id' => 'custom-id',
+										  '#weight' => 1,
+										  '#description' => t('please enter node type')
+										 );
+	
+	
+	
+	$form['first'] = array(
+		                     '#type' => 'submit',
+		                     '#value' => 'Contains',
+		                      '#weight' => 5,
+		                    );
+	/*$form['second'] = array(
+		                     '#type' => 'submit',
+		                     '#value' => 'Second',
+		                      '#weight' => 5,
+		                    );
+	*/
+	return $form;
+
+}
+
+function mera_from_node_validate($form, &$form_state)
+{
+	$different_node_type = node_get_types();
+	 $xyz = strtolower($form_state['values']['textfield-node-type']);
+	if (!array_key_exists($xyz,$different_node_type))
+	{
+		form_set_error('textfield-node-type', t('This type of node is not exist'));
+	}
+}
+
+function mera_from_node_submit($form, &$form_state)
+{
+	$row = array();
+	$xyz = strtolower($form_state['values']['textfield-node-type']);
+	drupal_goto('content-type-search/'.$xyz);
+}

@@ -1,0 +1,7 @@
+; $Id: product.info,v 1.4 2007/06/08 05:50:57 dries Exp $
+name = Alter Registration Tab
+description = Alter Registration Tabs.
+package = Custom Module
+core = 6.x
+version = "6.x-1.1"
+project = "ankit custom module"

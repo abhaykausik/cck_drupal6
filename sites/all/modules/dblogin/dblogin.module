@@ -1,0 +1,41 @@
+<?php
+
+/* Attention: bien que le lien pour se logguer (admin/dblogin) à partir de Drupal à votre interface web de gestion de DB ne mentionne aucun mot de passe, une redirection http est effectuée par votre fureteur et cette redirection comporte toute l'information nécessaire (username, password, url du serveur) pour se connecter et cette redirection se fera en clair si votre connection à votre site Drupal se fait en http plutôt qu'en https.
+
+  Warning: although the login url (admin/dblogin) from your Drupal to your DB web interface doesn't mention a password, an http redirection takes place in your browser and this redirection holds all the necessary information (username, password, server url) to login and this redirection will happen in clear text if your connection to Drupal is done accross http instead of https. */
+
+/**
+ * configurable variables:
+ *
+ * dblogin_username = http query field name for the username field
+ * dblogin_password = http query field name for the password field
+ * dblogin_extra = 'server=1' for phpmyadmin, using the first known server
+ * dblogin_server = complete url of the db admin server
+ */
+
+function dblogin_perm() {
+  return array('access database');
+}
+
+function dblogin_menu() {
+  return array('admin/dblogin' =>
+    array(
+      'title' => 'DB Login',
+      'access arguments' => array('access database'),
+      'page callback' => 'dblogin_login'
+  ));
+}
+
+function dblogin_login() {
+  global $db_url;
+  $creds = parse_url(isset($db_url['default']) ? $db_url['default'] : $db_url);
+  $options = array('query' =>
+    array(variable_get('dblogin_username', 'pma_username') => $creds['user'],
+      variable_get('dblogin_password', 'pma_password') => $creds['pass']
+  ));
+  header('Location: '
+    . url(variable_get('dblogin_server', 'https://aegir.koumbit.net/phpmyadmin/'), $options)
+    . '&' .variable_get('dblogin_extra', 'server=1'));
+  exit();
+}
+

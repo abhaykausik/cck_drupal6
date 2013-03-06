@@ -1,0 +1,201 @@
+<?php
+// $Id$
+
+/**
+* @file
+* This module is created to for  currency conversion
+*/
+
+/**
+* Implementation of hook_menu()
+*/
+ 
+ function custom_currency_exchange_menu()
+ {
+	 $items = array();
+	 $items['admin/currency-conversion'] = array(
+									 'title' => t('Currency Conversion'),
+									 'page callback' => 'currency_converter_form',
+									 'access arguments' => array('admin site configuraion'),
+		                             'type' =>MENU_NORMAL_ITEM,
+									);
+	 return $items;
+
+ }
+
+ function currency_converter_form()
+ {
+	 $output = '';
+	// $output .= 'hi <br/>';
+	 $output .= drupal_get_form('currency_data_form');
+	 //$output .= '<br />hi <br/>';
+
+	 return $output;
+ }
+
+ function currency_data_form()
+ {
+	 $sql = "SELECT * FROM {custom_currency_exchange}";
+	 $res = db_query($sql);
+	 while($row = db_fetch_object($res))
+	 {
+		 $usd = $row->usd;
+		 $pond = $row->pond;
+		 $euro = $row->euro;
+		 $yen = $row->yen;
+		 $inr = $row->inr;
+	 }
+	 $form['usd'] = array(
+		                   '#title' => t('USD'),
+		                   '#description' => t('Enter Thai bhat price of 1 USD.'),
+                                   '#type' => 'textfield',
+		                   '#weight' => 1,
+		                   '#size' => 30,
+		                   '#default_value' => $usd,
+
+		                  );
+	 $form['pond'] = array(
+		                   '#title' => t('POUND'),
+		                   '#description' => t('Enter Thai bhat price of 1 POUND.'),
+                                   '#type' => 'textfield',
+		                   '#weight' => 2,
+		                   '#size' => 30,
+		                   '#default_value' => $pond, 
+
+		                  );
+     $form['euro'] = array(
+		                   '#title' => t('EURO'),
+		                   '#description' => t('Enter Thai bhat price of 1 EURO.'),
+                                   '#type' => 'textfield',
+		                   '#weight' => 3,
+		                   '#size' => 30,
+		                   '#default_value' => $euro,
+
+		                  );
+     $form['yen'] = array(
+		                   '#title' => t('YEN'),
+		                   '#description' => t('Enter Thai bhat price of 1 YEN.'),
+                                   '#type' => 'textfield',
+		                   '#weight' => 4,
+		                   '#size' => 30,
+		                   '#default_value' => $yen,
+
+		                  );
+    $form['inr'] = array(
+		                   '#title' => t('INR'),
+		                   '#description' => t('Enter Thai bhat price of 1 INR.'),
+                                   '#type' => 'textfield',
+		                   '#weight' => 5,
+		                   '#size' => 30,
+		                   '#default_value' => $inr,
+
+		                  );
+	$form['submit'] = array(
+		                     '#type' => 'submit',
+	                         '#value' => 'submit',
+		                     '#weight' => 6,
+		                   );
+
+	return $form;
+ }
+
+
+  function currency_data_form_validate($form, &$form_state){
+	  
+	  if(!is_numeric($form_state['values']['usd'])){
+	     form_set_error('usd', t('Please enter numeric value'));
+	  }
+	   if(!is_numeric($form_state['values']['pond'])){
+	     form_set_error('pond', t('Please enter numeric value'));
+	  }
+	   if(!is_numeric($form_state['values']['euro'])){
+	     form_set_error('euro', t('Please enter numeric value'));
+	  }
+	   if(!is_numeric($form_state['values']['yen'])){
+	     form_set_error('yen', t('Please enter numeric value'));
+	  }
+	   if(!is_numeric($form_state['values']['inr'])){
+	     form_set_error('inr', t('Please enter numeric value'));
+	  }
+ }
+
+ function currency_data_form_submit($form, &$form_state){
+
+	 $usd = $form_state['values']['usd'];
+	 $pond = $form_state['values']['pond'];
+	 $euro = $form_state['values']['euro'];
+	 $yen = $form_state['values']['yen'];
+	 $inr = $form_state['values']['inr'];
+
+	 $sql = ("UPDATE {custom_currency_exchange} SET usd='%s', pond ='%s', euro='%s', yen='%s', inr='%s' WHERE 1");
+	 $res = db_query($sql, $usd, $pond, $euro, $yen, $inr);
+	 if($res)
+	 {
+		 drupal_set_message(t('Data have been saved.'));
+	 }
+	 else
+	 {
+		 drupal_set_message(t('Error in sql syntax.'));
+	 }
+	  
+ }
+
+ /**
+ * Showing different currency rate
+ */
+
+ /**
+ * Implementation of hook_block
+ */
+
+ function custom_currency_exchange_block($op = 'list', $delta = 0, $edit = array())
+ {
+	switch($op)
+	  {
+		case 'list':
+			$blocks[0]['info'] = t('currency converter');
+			return $blocks;
+			
+		case 'view':
+		$block['subject'] = t('Currency Converter');
+		$block['content'] = currency_converter_content();
+		return $block;
+
+	  }
+ }
+
+ /**
+ * This function is define to show different
+ * currency rate
+ */
+
+ function currency_converter_content()
+ {
+   drupal_add_js(drupal_get_path('module', 'custom_currency_exchange') .'/cc.js');
+
+   $sql = "SELECT * FROM {custom_currency_exchange}";
+	 $res = db_query($sql);
+	 while($row = db_fetch_object($res))
+	 {
+		 $usd = $row->usd;
+		 $pond = $row->pond;
+		 $euro = $row->euro;
+		 $yen = $row->yen;
+		 $inr = $row->inr;
+	 }
+
+	 $bhat_usd =  $usd;
+	 $bhat_pond = $pond;
+	 $bhat_euro = $euro;
+	 $bhat_yen = $yen;
+	 $bhat_inr = $inr;
+    
+    
+    $output ="";
+    $output .="<div  class='cus-p'><div class='cus-t'>USD Price: </div><div id='usd'> ".$bhat_usd."</div></div>";
+    $output .="<div  class='cus-p'><div class='cus-t'>POND Price: </div><div id='pond'> ".$bhat_pond."</div></div>";
+    $output .="<div  class='cus-p'><div class='cus-t'>EURO Price: </div><div id='euro'> ".$bhat_euro."</div></div>";
+    $output .="<div  class='cus-p'><div class='cus-t'>YEN Price: </div><div id='yen'> ".$bhat_yen."</div></div>";
+    $output .="<div  class='cus-p'><div class='cus-t'>INR Price: </div><div id='inr'> ".$bhat_inr."</div></div>";
+    return $output;
+ }

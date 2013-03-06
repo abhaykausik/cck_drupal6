@@ -1,0 +1,7 @@
+;$Id;
+name = custom currency converter.
+description = This module is created for currency conversion.
+package = Custom Module
+core = 6.x
+version = "6.x-1.1"
+project = "ankit custom module"

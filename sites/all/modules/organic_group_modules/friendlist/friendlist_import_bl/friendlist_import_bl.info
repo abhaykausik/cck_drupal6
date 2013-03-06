@@ -1,0 +1,11 @@
+name = Friendlist Importer for Buddylist
+description = Import data from Buddylist
+core = 6.x
+package = Friendlist
+dependencies[] = friendlist_api
+; Information added by drupal.org packaging script on 2011-07-07
+version = "6.x-1.x-dev"
+core = "6.x"
+project = "friendlist"
+datestamp = "1309998362"
+

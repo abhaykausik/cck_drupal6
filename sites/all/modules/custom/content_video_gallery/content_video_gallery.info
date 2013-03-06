@@ -1,0 +1,7 @@
+;$Id$
+name = Custom video gallery.
+description = This module is created to show news and event listing.
+package = Custom Module
+core = 6.x
+version = "6.x-2.1"
+project = "custom_form"

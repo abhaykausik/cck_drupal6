@@ -1,0 +1,14 @@
+<?php
+
+/**
+ * @file
+ *
+ * Install or update the PayPal meter module.
+ *
+ */
+
+function lm_paypal_meter_uninstall() {
+  variable_del('lm_paypal_meter_currency');
+  variable_del('lm_paypal_meter_goal');
+  variable_del('lm_paypal_meter_start_date');
+}

@@ -1,0 +1,13 @@
+name = OG Event
+description = "Maitain a list of participant on any event node that is posted into a group."
+core = 6.x
+dependencies[] = og
+;dependencies[] = event
+package = "Organic groups"
+
+; Information added by drupal.org packaging script on 2011-03-20
+version = "6.x-1.0-beta3"
+core = "6.x"
+project = "og_event"
+datestamp = "1300638070"
+

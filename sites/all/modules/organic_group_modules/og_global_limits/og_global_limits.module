@@ -1,0 +1,315 @@
+<?php
+// $Id: og_global_limits.module,v 1.2.2.1 2009/06/29 19:33:24 elliottf Exp $
+
+/**
+ * This module will set limits for group membership
+ *  and group ownership.  The limits are controled
+ *  through the admin interface.
+ *
+ * @file: og_global_limits.module
+ * @author: Elliott Foster
+ * @copyright: NewMBC 2009
+ */
+
+/**
+ * Implementation of hook_help()
+ */
+function og_global_limits_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#og_limigs':
+      return '<p>' .
+        t('Use this module to set limits on organic group ') .
+        t('membership and ownership.') .
+        '</p>';
+  }
+}
+
+/**
+ * Implementation of hook_perm()
+ */
+function og_global_limits_perm() {
+  // TODO - right now these permissions apply to all group types,
+  // need to support permissions on a per group type basis
+  return array(
+    'exceed max group member limit',  // allow group owner to add more than the max number of members
+    'exceed max group limit',         // allow group owner to create more than the max number of groups
+    'set group limit',                // allow user to set the limit on a given group
+  );
+}
+
+/**
+ * Implementation of hook_init()
+ */
+function og_global_limits_init() {
+  // check against subscribers
+  if (arg(0) == 'og' && arg(1) == 'subscribe' && is_numeric(arg(2))) {
+    if (!og_global_limits_can_add_more_members(arg(2))) {
+      drupal_set_message(t('This group has reached the maximum limit of members.  The group admins must remove at least one user before you can join.'), 'error');
+      drupal_goto('node/' . arg(2));
+    }
+  }
+
+  // check against adding users
+  if (arg(0) == 'og' && arg(1) == 'users' && is_numeric(arg(2)) && arg(3) == 'add_user') {
+    if (!og_global_limits_can_add_more_members(arg(2))) {
+      drupal_set_message(t('This group has reached the maximum limit of members.  You must remove at least one user before you can add more.'), 'error');
+      drupal_goto('og/users/' . arg(2));
+    }
+  }
+
+  // check against inviting users
+  if (arg(0) == 'og' && arg(1) == 'invite' && is_numeric(arg(2))) {
+    if (!og_global_limits_can_add_more_members(arg(2))) {
+      drupal_set_message(t('This group has reached the maximum limit of members.  The group admins must remove at least one user before you can join.'), 'error');
+      drupal_goto('node/' . arg(2));
+    }
+  }
+}
+
+/**
+ * Implementation of hook_menu()
+ */
+function og_global_limits_menu() {
+  $items = array();
+
+  $items['admin/og/og_global_limits'] = array(
+    'title' => 'Organic Group Global Limits',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('og_global_limits_settings'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'og_global_limits.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Impelementation of hook_form_alter()
+ */
+function og_global_limits_form_alter(&$form, $form_state, $form_id) {
+  // add a submit handler to rebuild the group types
+  if ($form_id == 'node_type_form') {
+    $form['#submit'][] = 'og_global_limits_rebuild_type_variable';
+  }
+
+  // add the form to set a limit on the group
+  if ($form['#id'] == 'node-form' && og_is_group_type($form['type']['#value']) && user_access('set group limit', user_load($form['uid']['#value']))) {
+    $group = NULL;
+    if ($form['nid']['#value']) {
+      $group = node_load($form['nid']['#value']);
+    }
+
+    $form['og_global_limits'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('OG Global Limits'),
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#weight' => 3,
+    );
+    $form['og_global_limits']['group_limit'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Number of members that may join the group'),
+      '#default_value' => isset($group->og_override_limit) ? $group->og_override_limit : variable_get('og_global_limits_' . $form['type']['#value'] . '_max_per_group', 5),
+      '#description' => t('Set the number of members that may join this group, 0 for unlimited'),
+      '#required' => TRUE,
+    );
+  }
+
+  // make sure that the owner isn't attempting to add more than the
+  // max number of users to the group
+  if ($form_id == 'og_add_users') {
+    $form['#validate'][] = 'og_global_limits_add_users_validate';
+  }
+
+  if ($form_id == 'og_invite_form') {
+    $form['#validate'][] = 'og_global_limits_invite_validate';
+  }
+}
+
+/**
+ * Implementation of hook_nodeapi()
+ */
+function og_global_limits_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
+  switch ($op) {
+    case 'prepare':
+      if (arg(1) == 'add' && og_is_group_type($node->type)) {
+        $owned_groups = og_global_limits_owned_groups($account);
+
+        // if adding a group will push the number of owned groups
+        // over the max and the user isn't allowed to exceed the
+        // max return access denied and set a message.
+        if (variable_get('og_global_limits_' . $node->type . '_max_groups', 10) > 0 &&
+          ($owned_groups + 1) > variable_get('og_global_limits_' . $node->type . '_max_groups', 10) &&
+          !user_access('exceed max group limit')
+        ) {
+          drupal_set_message(t('You cannot add any more groups until you delete at least one @type type group.', array('@type' => $node->type)), 'error');
+          drupal_access_denied();
+        }
+      }
+      break;
+    case 'load':
+      if (og_is_group_type($node->type) && !user_access('exceed max group member limit', user_load($node->uid))) {
+        // only set the available memberships count if the
+        // owner can't exceed the max limit
+        $member_count = db_result(db_query("SELECT COUNT(*) FROM {og_uid} WHERE nid=%d AND uid!=%d", $node->nid, $node->uid));
+        $limit_override = db_result(db_query("SELECT lim FROM {og_global_limits} WHERE nid=%d", $node->nid));
+        $limit = variable_get('og_global_limits_' . $node->type . '_max_per_group', 5);
+        if ($limit_override !== FALSE) {
+          $limit = $limit_override;
+          $node->og_override_limit = $limit;
+        }
+        $node->og_global_limits_available_memberships = $limit - $member_count;
+      }
+      break;
+    case 'validate':
+      if (isset($node->group_limit)) {
+        if (!is_numeric($node->group_limit) || $node->group_limit < 0) {
+          form_set_error('gorup_limit', t('You must enter a positive integer for the group limit'));
+        }
+        if (is_numeric($node->group_limit) && $node->group_limit > 4294967295) {
+          form_set_error('group_limit', t('The maximum group member limit is 4,294,967,295.  If you would like to set an unlimited group enter 0'));
+        }
+      }
+      break;
+    case 'insert':
+    case 'update':
+      // if the limit was set and is different from the default save the value
+      if (isset($node->group_limit)) {
+        $limit = array('nid' => $node->nid, 'lim' => $node->group_limit);
+        if (db_result(db_query("SELECT nid FROM {og_global_limits} WHERE nid=%d", $node->nid)) !== FALSE) {
+          // update an existing value
+          drupal_write_record('og_global_limits', $limit, array('nid'));
+        }
+        else {
+          // insert a new value if it's something other than the default or this is an update
+          if ($node->group_limit != variable_get('og_global_limits_' . $group->type . '_max_per_group', 5) || $op != 'insert') {
+            drupal_write_record('og_global_limits', $limit);
+          }
+        }
+        unset($node->group_limit);
+      }
+      break;
+    case 'delete':
+      db_query("DELETE FROM {og_global_limits} WHERE nid=%d", $node->nid);
+      break;
+  }
+}
+
+/**
+ * og_global_limits_owned_groups - return the number of
+ *  groups owned by a given user.
+ *
+ * @param: $account - the user to check
+ * @return: the number of groups owned by $account
+ */
+function og_global_limits_owned_groups($account = NULL) {
+  global $user;
+  $owned = 0;
+
+  if ($account == NULL) {
+    $account = $user;
+  }
+  else if (is_numeric($account)) {
+    $account = user_load($account);
+  }
+
+  $owned = db_result(db_query(
+    "SELECT COUNT(*) FROM {node} WHERE uid=%d AND type IN ('%s')", 
+    $account->uid, 
+    implode("', '", variable_get('og_global_limits_group_types', array()))
+  ));
+
+  return $owned;
+}
+
+/**
+ * og_global_limits_rebuild_type_variable - rebuild the group
+ *  type variable since a node type was just added/edited
+ */
+function og_global_limits_rebuild_type_variable($form, &$form_state) {
+  $group_types = array();
+  $res = db_query("SELECT type FROM {node_type}");
+
+  while ($node = db_fetch_object($res)) {
+    if (og_is_group_type($node->type)) {
+      $group_types[] = $node->type;
+    }
+  }
+
+  variable_set('og_global_limits_group_types', $group_types);
+}
+
+/**
+ * og_global_limits_add_users_validate - check to make sure that
+ *  the group owner isn't attempting to add more than the maximum
+ *  number of members to the group.
+ */
+function og_global_limits_add_users_validate($form, &$form_state) {
+  $group = node_load($form_state['values']['gid']);
+  // Safest option is to do a select, filter existing members, then insert.
+  $names = explode(',', $form_state['values']['og_names']);
+  foreach ($names as $name) {
+    $account = user_load(array('name' => trim($name)));
+    if ($account->uid) {
+      $accounts[] = $account;
+    }
+  }
+
+  if (!og_global_limits_can_add_more_members($group, sizeof($accounts))) {
+    form_set_error('og_names', t('You cannot add this many users to the group without exceeding the maximum member limit.  Choose a smaller set of users to add.'));
+  }
+}
+
+/**
+ * og_global_limits_invite_validate - check to make sure that
+ *  the group owner isn't attempting to add more than the maximum
+ *  number of members to the group.
+ */
+function og_global_limits_invite_validate($form, &$form_state) {
+  $group = node_load($form_state['values']['gid']);
+
+  $mails = $form_state['values']['mails'];
+  $mails = str_replace("\n", ',', $mails);
+  $emails = explode(',', $mails);
+
+  // just in case the user didn't enter any emails, sent the default '1'
+  // to the member check
+  if (!og_global_limits_can_add_more_members($group, (sizeof($emails) > 0 ? sizeof($emails) : 1))) {
+    form_set_error('mails', t('You cannot add this many users to the group without exceeding the maximum member limit.  Choose a smaller set of users to invite.'));
+  } 
+}
+
+/**
+ * og_global_limits_can_add_more_members - return TRUE if the user can
+ *  add more groups, else FALSE.
+ *
+ * @param: $group - the group to check
+ * @param: $new_member_count - the number of members to attempt to add
+ */
+function og_global_limits_can_add_more_members($group = NULL, $new_member_count = 1) {
+  if (is_numeric($group)) {
+    $group = node_load($group);
+  }
+  else if ($group == NULL) {
+    return FALSE;
+  }
+
+  $owner = user_load($group->uid);
+
+  // first, take the easy way out if we can if the admin chose not
+  // to limit the number of members that can be in a group or if the
+  // group owner can exceed the limit or if the group owner set the
+  // limit to 0 (which creates a negative available number)
+  if (variable_get('og_global_limits_' . $group->type . '_max_per_group', 5) == 0 ||
+    user_access('exceed max per group limit', $owner) || $group->og_global_limits_available_memberships < 0
+  ) {
+    return TRUE;
+  }
+
+  if ($new_member_count > $group->og_global_limits_available_memberships) {
+    return FALSE;
+  }
+
+  return TRUE;
+}
+

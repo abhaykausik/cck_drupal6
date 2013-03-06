@@ -1,0 +1,21 @@
+<?php
+
+/**
+ * @file
+ * Friendlist's Rules integration.
+ */
+
+/**
+ * Implementation of hook_views_api().
+ *
+ * This hook will tell "views" that this module interfaces with it.
+ */
+function friendlist_views_views_api() {
+
+  return array(
+    'api' => 2,
+    'path' => drupal_get_path('module', 'friendlist_views'),
+  );
+}
+
+

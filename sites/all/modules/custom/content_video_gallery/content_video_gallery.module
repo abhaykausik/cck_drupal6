@@ -1,0 +1,235 @@
+  <?php
+// $Id$
+/**
+*@file
+* This file is created to show custom form creation in drupal.
+*/
+
+
+/**
+* Implementation of hook_menu()
+*/
+
+/**
+* hook_init()
+*/
+
+function content_video_gallery_init()
+{
+  $module_path = drupal_get_path('module', 'content_video_gallery');
+  drupal_add_js($module_path.'/js/jwplayer.js');
+}
+
+function content_video_gallery_menu()
+{
+	$items = array();
+	$items['video-gallery'] = array( 'title' => t('Video Gallery'),
+		                           'page callback' => 'my_custom_video_gallery',
+					   'access arguments' => array('access content'),
+					   'type' =>MENU_CALLBACK,
+									
+		                          );
+      $items['video-gallery/view'] = array( 'title' => t('Video page'),
+		                           'page callback' => 'my_custom_video_view',
+					   'access arguments' => array('access content'),
+					   'type' =>MENU_CALLBACK,
+									
+		                          );
+	
+	return $items;
+}
+
+
+function my_custom_video_view()
+{
+  if($_GET['vid'])
+  {
+      $node_id = $_GET['vid'];
+  }
+  else
+  {
+	//$node_id = 23;
+	$node_id = 211;
+  }
+  
+   
+   return theme('video_display', $node_id); 
+  
+  
+}
+
+/**
+* Implementation of hook_theme()
+*/
+
+function content_video_gallery_theme()
+{
+   return array(
+          'video_display' => array(
+		  'arguments' => array('node_id' => NULL),
+		  'template' => 'video-display-xyz',
+		 ),
+		 'video_search_category' => array(
+		  'arguments' => array('data_id' => NULL),
+		  'template' => 'video-search-category',
+		 ),
+		 'video_search_text' => array(
+		  'arguments' => array('data_id' => NULL),
+		  'template' => 'video-search-text',
+		 ),
+		 'video_search_default' => array(
+		  'arguments' => array('data_id' => NULL),
+		  'template' => 'video-search-default',
+		 ),
+   );
+}
+
+
+function my_custom_video_gallery()
+{
+     $output ='';
+    $output .= '<div class="gallery">';
+     $output .= '<div class="gallery-search">';
+    $output .= drupal_get_form('video_search_form');
+     $output .= '</div>';
+
+    /**** FORM RESULT DATA STARTS ***********/
+    
+    if(isset($_GET['video_category']))
+    {
+      
+      if($_GET['video_category']=='' || $_GET['video_category']=='select')
+      {
+         form_set_error('member_email',  'Please Select a category');
+      }
+      else
+      {
+        $cat_id =$_GET['video_category'];
+         $res_data = db_result(db_query("SELECT name FROM term_data WHERE tid =  $cat_id"));
+         drupal_set_message(t('Fortis video  in '.$res_data.' category.'));
+	 $output .= theme('video_search_category', $_GET['video_category']);
+      }
+     
+    }
+   
+   else if(isset($_GET['video_text']))
+    {
+       
+	       if($_GET['video_text']=='')
+	      {
+		 form_set_error('member_email',  'Please enter a text');
+	      }
+	      else
+	      {
+	        $video_text= trim($_GET['video_text']);
+		  drupal_set_message(t('Searching for text <b>'.$_GET['video_text'].'</b> in fortish video category.'));
+		 $output .=  theme('video_search_text', $video_text);
+	      }
+     
+    }
+
+    else
+    {
+      $c = 'a';
+      $output .= theme('video_search_default', $c);
+    }
+    
+    /**** FORM RESULT DATA ENDS ***********/
+    
+    $output .= "</div>";
+    return $output;
+
+}
+
+function video_search_form()
+{
+     $option['select']='select';
+
+     //$sql = "SELECT tid, name FROM term_data WHERE vid=1";
+     $sql = "SELECT tid, name FROM term_data WHERE vid=11";
+     $res = db_query($sql);
+     while($row = db_fetch_object($res))
+     {
+       $option[$row->tid]=$row->name;
+     }
+
+    $form['video-category'] = array(
+                                   '#title' => t(''),
+				   '#type'=> 'select',
+				   '#options'=> $option,
+				   '#weight' => 1,
+                                  );
+	$form['go'] = array(
+					   '#type'=> 'submit',
+					   '#value'=> 'go',
+					   '#weight' => 2,
+					  );
+	$form['video-search-text'] = array(
+					   '#title' => t(''),
+					   '#type'=> 'textfield',
+					   '#size' => 60,
+					   '#weight' => 3,
+					  );
+	$form['search'] = array(
+					   '#type'=> 'submit',
+					   '#value'=> 'Search',
+					   '#weight' => 4,
+					  );
+
+	$form['#redirect'] = 'video-gallery';
+	return $form;
+}
+
+function  video_search_form_validate($form, &$form_state)
+{
+ /* echo "<pre>";
+    print_r($form_state);
+ form_set_error('member_email', t('Invalid email addresses.'));
+ */
+}
+
+function video_search_form_submit($form, &$form_state)
+{
+    echo "<pre>";
+    print_r($form_state);
+
+    if($form_state['values']['op']=='go')
+    {
+      //form_set_error('member_email', t('go button is clicked'));
+        $q = array();
+	$q['video_category'] = $form_state['values']['video-category'];
+	drupal_goto("video-gallery", $q);
+    }
+    if($form_state['values']['op']=='Search')
+    {
+      //form_set_error('member_email', t('search button is clicked'));
+        $q = array();
+	$q['video_text'] = $form_state['values']['video-search-text'];
+	drupal_goto("video-gallery", $q);
+    }
+    
+}
+
+/**
+function video_search_cat($a)
+{
+   
+   $output = $a;
+   
+   return theme('video_search_category', $a); 
+}
+
+function video_search_text($b)
+{
+  
+   $output = $b;
+  return theme('video_search_text', $b); 
+}
+
+function video_search_default()
+{
+   $c = 'a';
+   return theme('video_search_default', $c); 
+}
+
+*/
